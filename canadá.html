@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canadá | Expedição Interdisciplinar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --secondary: #f0f0f0;
+            --accent: #ffd700;
+            --text: #2c2c2c;
+            --text-light: #666;
+            --white: #ffffff;
+            --black: #000000;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--secondary);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: var(--transition);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        header.scrolled {
+            padding: 10px 0;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            transition: var(--transition);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+            transition: var(--transition);
+        }
+
+        nav a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a:hover:after {
+            width: 100%;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1503614472-8c93d56e92ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2011&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            transition: transform 10s ease;
+        }
+
+        .hero:hover .hero-bg {
+            transform: scale(1.05);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            padding: 0 20px;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: var(--transition);
+            animation: fadeInUp 1s ease 0.4s both;
+            border: 2px solid var(--primary);
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: var(--white);
+            border-color: var(--white);
+            transform: translateY(-5px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--white);
+        }
+
+        .btn-outline:hover {
+            background: var(--white);
+            color: var(--primary);
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--white);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 120px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Geography Section */
+        .geography {
+            background: var(--white);
+        }
+
+        .geography-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .geography-text h3 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .geography-text p {
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .geography-image {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .geography-image:hover {
+            transform: translateY(-10px);
+        }
+
+        .geography-image img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .geography-image:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Disciplines Grid */
+        .disciplines {
+            background: var(--secondary);
+        }
+
+        .disciplines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .discipline-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .discipline-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-image {
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .discipline-card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .card-text {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .card-link i {
+            margin-left: 8px;
+            transition: var(--transition);
+        }
+
+        .card-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .card-link:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Culture Section */
+        .culture {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .culture .section-title,
+        .culture .section-subtitle {
+            color: var(--white);
+        }
+
+        .culture:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1519832979-6fa011b87667?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .culture-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .culture-text h3 {
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+        }
+
+        .culture-text p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .culture-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .culture-feature {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .culture-feature:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Interactive Map Section */
+        .interactive-map {
+            background: var(--white);
+            padding: 80px 0;
+        }
+
+        .map-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            height: 500px;
+        }
+
+        #canadaMap {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+        }
+
+        .map-info {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-light);
+        }
+
+        /* Statistics Section */
+        .statistics {
+            background: var(--secondary);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        /* Economy Section */
+        .economy {
+            background: var(--secondary);
+        }
+
+        .economy-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .economy-chart {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-bar {
+            margin-bottom: 20px;
+        }
+
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .chart-progress {
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .chart-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 15px;
+            transition: width 1.5s ease;
+        }
+
+        /* Technology Section */
+        .technology {
+            background: var(--white);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .tech-card {
+            text-align: center;
+            padding: 40px 30px;
+            background: var(--secondary);
+            border-radius: 15px;
+            transition: var(--transition);
+        }
+
+        .tech-card:hover {
+            transform: translateY(-10px);
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .tech-card:hover .tech-icon {
+            color: var(--accent);
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        /* Gallery Section */
+        .gallery {
+            background: var(--white);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 300px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: var(--white);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: var(--white);
+            padding: 80px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Map Popup Styling */
+        .map-popup {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .map-popup h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .map-popup p {
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-5px) translateX(-50%);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+            
+            .stats-grid,
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .geography-content,
+            .culture-content,
+            .economy-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 15px 0;
+            }
+            
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--white);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                transition: var(--transition);
+                z-index: 1001;
+                padding: 80px 30px 30px;
+            }
+            
+            nav.active {
+                right: 0;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .mobile-menu {
+                display: block;
+                z-index: 1002;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .disciplines-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .culture-features {
+                grid-template-columns: 1fr;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid,
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-maple-leaf"></i>
+                    <span>Canadá</span>
+                </a>
+                
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <nav>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#geography">Geografia</a></li>
+                        <li><a href="#disciplines">Disciplinas</a></li>
+                        <li><a href="#culture">Cultura</a></li>
+                        <li><a href="#map">Mapa Interativo</a></li>
+                        <li><a href="#economy">Economia</a></li>
+                        <li><a href="#gallery">Galeria</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>Expedição Interdisciplinar: Canadá</h1>
+            <p>Descubra a terra das vastas florestas, lagos cristalinos e diversidade cultural através de uma jornada única que integra múltiplas áreas do conhecimento</p>
+            <div class="hero-buttons">
+                <a href="#geography" class="btn">Explorar</a>
+                <a href="#map" class="btn btn-outline">Mapa Interativo</a>
+            </div>
+        </div>
+        
+        <a href="#geography" class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+        </a>
+    </section>
+
+    <!-- Geography Section -->
+    <section class="geography" id="geography">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Geografia</h2>
+                <p class="section-subtitle">O segundo maior país do mundo com paisagens deslumbrantes</p>
+            </div>
+            
+            <div class="geography-content">
+                <div class="geography-text">
+                    <h3>Vastidão e Beleza Natural</h3>
+                    <p>O Canadá é o segundo maior país do mundo em área territorial, estendendo-se desde o Oceano Atlântico até o Pacífico e para o norte até o Oceano Ártico. Com uma área de 9,98 milhões de quilômetros quadrados, o país oferece uma incrível diversidade de paisagens.</p>
+                    <p>Das majestosas Montanhas Rochosas às vastas pradarias, das densas florestas boreais à tundra ártica, o Canadá abriga alguns dos ecossistemas mais preservados do planeta. O país possui mais lagos que qualquer outro país, contendo talvez 60% dos lagos do mundo.</p>
+                    <p>O clima canadense varia amplamente de região para região. Enquanto o norte experimenta um clima polar, as regiões costeiras desfrutam de temperaturas mais amenas, e o interior possui um clima continental com quatro estações bem definidas.</p>
+                </div>
+                
+                <div class="geography-image">
+                    <img src="https://i.etsystatic.com/10776211/r/il/4086ff/4452397879/il_1080xN.4452397879_i3kp.jpg" alt="Paisagem natural do Canadá - Lago Moraine">
+                    <div class="gallery-overlay">
+                        <h4>Lago Moraine</h4>
+                        <p>Parque Nacional Banff, Alberta</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disciplines Section -->
+    <section class="disciplines" id="disciplines">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Perspectivas Interdisciplinares</h2>
+                <p class="section-subtitle">Explorando o Canadá através de diferentes áreas do conhecimento</p>
+            </div>
+            
+            <div class="disciplines-grid">
+                <!-- História -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://tse1.mm.bing.net/th/id/OIP.PHQdCa9nj-OCqPZZojYGPgHaF7?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Parliament Hill em Ottawa">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <h3 class="card-title">História</h3>
+                        <p class="card-text">Das Primeiras Nações à Confederação: uma jornada através da rica história canadense, colonização francesa e britânica, e a formação de uma nação multicultural.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Português -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://d264g85ecdkbos.cloudfront.net/wp-content/uploads/2017/07/Attachment-1-69.jpeg?x27728" alt="Biblioteca Pública de Toronto">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3 class="card-title">Português</h3>
+                        <p class="card-text">Literatura canadense contemporânea, autores premiados como Margaret Atwood e Michael Ondaatje, e a produção literária multicultural.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Matemática -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://wallpaperaccess.com/full/2719766.jpg" alt="Toronto Skyline">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h3 class="card-title">Matemática</h3>
+                        <p class="card-text">Dados estatísticos populacionais, indicadores econômicos, análise de crescimento demográfico e desenvolvimento urbano.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Ciências -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://www.voupranos.com.br/wp-content/uploads/2023/01/AdobeStock_400964377-1024x683.jpg" alt="Aurora Boreal no Canadá">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3 class="card-title">Ciências</h3>
+                        <p class="card-text">Biodiversidade única, ecossistemas preservados, pesquisa científica de ponta e conservação ambiental.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Artes -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.6UQuIY6suxAnVBFoGYz-8gHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Museu de Belas Artes de Montreal">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3 class="card-title">Artes</h3>
+                        <p class="card-text">Grupo dos Sete, arte indígena contemporânea, cena musical diversificada e produção cinematográfica internacional.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Educação Física -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://www.ringette.ca/wp-content/uploads/2016/01/10556430_10156573126905727_1717182177387929896_n.jpg" alt="Hóquei no gelo - esporte nacional">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <h3 class="card-title">Educação Física</h3>
+                        <p class="card-text">Hóquei no gelo, esportes de inverno, lifestyle ativo e preparação para competições internacionais.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Inglês -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://mysweetcanada.com/wp-content/uploads/2019/06/Ottawa_1.jpg" alt="Sinalização bilíngue em Ottawa">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h3 class="card-title">Inglês</h3>
+                        <p class="card-text">País bilíngue oficial, variações do inglês canadense, expressões idiomáticas e influências multiculturais no idioma.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Filosofia/Sociologia -->
+                <div class="discipline-card">
+                    <div class="card-image">
+                        <img src="https://www.pcma.org/wp-content/uploads/2023/07/Toronto-728x410.jpg" alt="Diversidade cultural em Toronto">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="card-title">Filosofia/Sociologia</h3>
+                        <p class="card-text">Multiculturalismo como política de estado, valores de tolerância e inclusão, e organização social diversificada.</p>
+                        <a href="#" class="card-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Culture Section -->
+    <section class="culture" id="culture">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Cultura Canadense</h2>
+                <p class="section-subtitle">Diversidade, tolerância e inovação em uma sociedade multicultural</p>
+            </div>
+            
+            <div class="culture-content">
+                <div class="culture-text">
+                    <h3>Mosaico Cultural</h3>
+                    <p>O Canadá é reconhecido mundialmente por seu compromisso com o multiculturalismo e a diversidade. Com duas línguas oficiais (inglês e francês) e uma população composta por pessoas de praticamente todos os países do mundo, o Canadá representa um verdadeiro mosaico cultural.</p>
+                    <p>Da vibrante cena artística de Toronto aos festivais de Montreal, da rica herança indígena às comunidades étnicas que mantêm suas tradições, a cultura canadense é dinâmica e inclusiva.</p>
+                    <p>Valores como respeito, tolerância e igualdade são fundamentais para a identidade nacional canadense, refletidos em políticas públicas e no dia a dia da população.</p>
+                </div>
+                
+                <div class="culture-features">
+                    <div class="culture-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="feature-title">Multiculturalismo</h4>
+                        <p>Política oficial desde 1971, celebrando a diversidade</p>
+                    </div>
+                    
+                    <div class="culture-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-theater-masks"></i>
+                        </div>
+                        <h4 class="feature-title">Artes</h4>
+                        <p>Cena artística vibrante e internacionalmente reconhecida</p>
+                    </div>
+                    
+                    <div class="culture-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h4 class="feature-title">Culinária</h4>
+                        <p>Fusão de influências indígenas, francesas e multiculturais</p>
+                    </div>
+                    
+                    <div class="culture-feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <h4 class="feature-title">Música</h4>
+                        <p>Artistas mundialmente famosos e cena musical diversa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section class="interactive-map" id="map">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Mapa Interativo do Canadá</h2>
+                <p class="section-subtitle">Explore as províncias, territórios e principais cidades canadenses</p>
+            </div>
+            
+            <div class="map-container">
+                <div id="canadaMap"></div>
+            </div>
+            <div class="map-info">
+                <p><i class="fas fa-info-circle"></i> Clique nas províncias e cidades para obter mais informações</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="statistics">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Canadá em Números</h2>
+                <p class="section-subtitle">Dados demográficos, econômicos e sociais atualizados</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="38">0</div>
+                    <div class="stat-label">Milhões de Habitantes</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number" data-target="2">0</div>
+                    <div class="stat-label">Maior País do Mundo</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number" data-target="200">0</div>
+                    <div class="stat-label">Origens Étnicas</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number" data-target="10">0</div>
+                    <div class="stat-label">Maior Economia Mundial</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Economy Section -->
+    <section class="economy" id="economy">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Economia e Empreendedorismo</h2>
+                <p class="section-subtitle">Diversificação e inovação em uma economia globalizada</p>
+            </div>
+            
+            <div class="economy-content">
+                <div class="economy-text">
+                    <h3>Potência Econômica Diversificada</h3>
+                    <p>O Canadá possui uma das economias mais estáveis e desenvolvidas do mundo, caracterizada por sua diversificação e forte setor de serviços. O país é membro do G7 e possui acordos comerciais com diversas nações.</p>
+                    <p>Principais setores incluem recursos naturais (petróleo, gás, mineração), manufatura, tecnologia e serviços financeiros. O Canadá é um dos maiores produtores mundiais de energia hidrelétrica e possui reservas significativas de petróleo nas areias betuminosas de Alberta.</p>
+                    <p>O empreendedorismo é fortemente incentivado, com ecossistemas de inovação em cidades como Toronto, Vancouver e Montreal, especialmente nas áreas de tecnologia, IA e biociências.</p>
+                </div>
+                
+                <div class="economy-chart">
+                    <h4>Composição do PIB Canadense</h4>
+                    <div class="chart-bar">
+                        <div class="chart-label">
+                            <span>Serviços</span>
+                            <span>78%</span>
+                        </div>
+                        <div class="chart-progress">
+                            <div class="chart-fill" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">
+                            <span>Indústria</span>
+                            <span>19%</span>
+                        </div>
+                        <div class="chart-progress">
+                            <div class="chart-fill" style="width: 19%"></div>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">
+                            <span>Agricultura</span>
+                            <span>3%</span>
+                        </div>
+                        <div class="chart-progress">
+                            <div class="chart-fill" style="width: 3%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="technology">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Tecnologia e Inovação</h2>
+                <p class="section-subtitle">Liderança em pesquisa e desenvolvimento de ponta</p>
+            </div>
+            
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Inteligência Artificial</h3>
+                    <p>Centros de excelência em IA em Montreal e Toronto</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-laptop-medical"></i>
+                    </div>
+                    <h3>Biotecnologia</h3>
+                    <p>Pesquisa médica de ponta e inovação farmacêutica</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <h3>Aeroespacial</h3>
+                    <p>Indústria aeroespacial desenvolvida e inovadora</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <h3>Energia Limpa</h3>
+                    <p>Liderança em energia hidrelétrica e tecnologias verdes</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Telecomunicações</h3>
+                    <p>Infraestrutura digital avançada e conectividade</p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3>Entretenimento Digital</h3>
+                    <p>Indústria de games e efeitos visuais de classe mundial</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Galeria Visual</h2>
+                <p class="section-subtitle">Imagens que capturam a essência do Canadá</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1503614472-8c93d56e92ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2011&q=80" alt="Montanhas Rochosas">
+                    <div class="gallery-overlay">
+                        <h4>Montanhas Rochosas</h4>
+                        <p>Parque Nacional Banff, Alberta</p>
+                    </div>
+                </div>
+                
+                <div class="gallery-item">
+                    <img src="https://img.freepik.com/fotos-gratis/skyline-da-cidade-de-toronto-a-noite-ontario-canada_131985-212.jpg?size=626&ext=jpg" alt="Toronto à noite">
+                    <div class="gallery-overlay">
+                        <h4>Toronto à Noite</h4>
+                        <p>Skyline da maior cidade canadense</p>
+                    </div>
+                </div>
+                
+                <div class="gallery-item">
+                    <img src="https://imagens1.ne10.uol.com.br/blogsne10/social1/uploads/2015/10/AURORA-01.jpg" alt="Aurora Boreal">
+                    <div class="gallery-overlay">
+                        <h4>Aurora Boreal</h4>
+                        <p>Fenômeno natural nos territórios do norte</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Expedição Canadá</h3>
+                    <p>Um projeto interdisciplinar explorando a terra das vastas paisagens e diversidade cultural através de múltiplas áreas do conhecimento.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Disciplinas</h3>
+                    <ul class="footer-links">
+                        <li><a href="#geography">Geografia</a></li>
+                        <li><a href="#disciplines">História</a></li>
+                        <li><a href="#disciplines">Matemática</a></li>
+                        <li><a href="#disciplines">Ciências</a></li>
+                        <li><a href="#disciplines">Artes</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Explorar</h3>
+                    <ul class="footer-links">
+                        <li><a href="#culture">Cultura</a></li>
+                        <li><a href="#economy">Economia</a></li>
+                        <li><a href="#technology">Tecnologia</a></li>
+                        <li><a href="#map">Mapa Interativo</a></li>
+                        <li><a href="#gallery">Galeria</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Fontes de Pesquisa</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://www.canada.ca/" target="_blank">Governo do Canadá</a></li>
+                        <li><a href="https://www.statcan.gc.ca/" target="_blank">Estatísticas Canadá</a></li>
+                        <li><a href="https://www.thecanadianencyclopedia.ca/" target="_blank">Enciclopédia Canadense</a></li>
+                        <li><a href="https://www.destinationcanada.com/" target="_blank">Turismo Canadá</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 Expedição Interdisciplinar: Canadá. Desenvolvido por [Seu Nome] - PUBLICAR APLICAÇÕES WEB</p>
+                <p>Tecnologias: HTML5, CSS3, JavaScript, Leaflet.js, GitHub Pages | Imagens: Unsplash | Fontes: Governo do Canadá, Statistics Canada</p>
+                <p><strong>Fontes de pesquisa principais:</strong> Statistics Canada, Government of Canada, The Canadian Encyclopedia, UNESCO World Heritage</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('nav').classList.toggle('active');
+        });
+
+        // Header Scroll Effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Animated Counter
+        const counters = document.querySelectorAll('.stat-number');
+        const speed = 200;
+
+        const animateCounter = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounter, 1);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        };
+
+        // Intersection Observer for Counter Animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        observer.observe(document.querySelector('.statistics'));
+
+        // Smooth Scrolling for Anchor Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('nav').classList.remove('active');
+            });
+        });
+
+        // Animate chart bars on scroll
+        const chartBars = document.querySelectorAll('.chart-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    chartBars.forEach(bar => {
+                        const width = bar.style.width;
+                        bar.style.width = '0';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 300);
+                    });
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        chartObserver.observe(document.querySelector('.economy'));
+
+        // Interactive Canada Map
+        function initMap() {
+            // Initialize the map
+            const map = L.map('canadaMap').setView([56.1304, -106.3468], 4);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 8,
+                minZoom: 3
+            }).addTo(map);
+
+            // Define province boundaries and information
+            const provinces = [
+                {
+                    name: "Ontário",
+                    coords: [[51.2538, -85.3232], [56.8500, -74.3960]],
+                    capital: "Toronto",
+                    population: "14.8 milhões",
+                    area: "1.076 milhão km²",
+                    facts: "Maior população e economia do Canadá"
+                },
+                {
+                    name: "Quebec",
+                    coords: [[45.0000, -79.3832], [62.0000, -57.0000]],
+                    capital: "Quebec City",
+                    population: "8.6 milhões",
+                    area: "1.542 milhão km²",
+                    facts: "Única província majoritariamente francófona"
+                },
+                {
+                    name: "Colúmbia Britânica",
+                    coords: [[48.0000, -139.0000], [60.0000, -114.0000]],
+                    capital: "Victoria",
+                    population: "5.2 milhões",
+                    area: "944.735 km²",
+                    facts: "Costa do Pacífico e Montanhas Rochosas"
+                },
+                {
+                    name: "Alberta",
+                    coords: [[49.0000, -120.0000], [60.0000, -110.0000]],
+                    capital: "Edmonton",
+                    population: "4.4 milhões",
+                    area: "661.848 km²",
+                    facts: "Capital energética do Canadá"
+                }
+            ];
+
+            // Add province rectangles with popups
+            provinces.forEach(province => {
+                const bounds = L.latLngBounds(province.coords);
+                const rectangle = L.rectangle(bounds, {
+                    color: "#ff0000",
+                    weight: 2,
+                    fillColor: "#ff0000",
+                    fillOpacity: 0.1
+                }).addTo(map);
+
+                rectangle.bindPopup(`
+                    <div class="map-popup">
+                        <h3>${province.name}</h3>
+                        <p><strong>Capital:</strong> ${province.capital}</p>
+                        <p><strong>População:</strong> ${province.population}</p>
+                        <p><strong>Área:</strong> ${province.area}</p>
+                        <p><strong>Curiosidade:</strong> ${province.facts}</p>
+                    </div>
+                `);
+            });
+
+            // Add major cities as markers
+            const cities = [
+                {
+                    name: "Toronto",
+                    coords: [43.6532, -79.3832],
+                    population: "2.9 milhões",
+                    facts: "Maior cidade do Canadá, centro financeiro"
+                },
+                {
+                    name: "Montreal",
+                    coords: [45.5017, -73.5673],
+                    population: "1.8 milhões",
+                    facts: "Segunda maior cidade, capital cultural"
+                },
+                {
+                    name: "Vancouver",
+                    coords: [49.2827, -123.1207],
+                    population: "675 mil",
+                    facts: "Porto principal do Pacífico"
+                },
+                {
+                    name: "Calgary",
+                    coords: [51.0447, -114.0719],
+                    population: "1.3 milhões",
+                    facts: "Centro da indústria petrolífera"
+                },
+                {
+                    name: "Ottawa",
+                    coords: [45.4215, -75.6972],
+                    population: "1 milhões",
+                    facts: "Capital do Canadá"
+                }
+            ];
+
+            cities.forEach(city => {
+                L.marker(city.coords).addTo(map)
+                    .bindPopup(`
+                        <div class="map-popup">
+                            <h3>${city.name}</h3>
+                            <p><strong>População:</strong> ${city.population}</p>
+                            <p><strong>Característica:</strong> ${city.facts}</p>
+                        </div>
+                    `);
+            });
+
+            // Fit map to show all of Canada
+            map.fitBounds([[41.7, -141.0], [83.1, -52.6]]);
+        }
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
